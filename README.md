@@ -198,7 +198,26 @@ npm run build
 
 The project is built for flexible production deployment. It supports **Unified Single-Container** deployment (serving both the React frontend and FastAPI backend on one port) as well as **Split Deployment** (Frontend on Vercel/Netlify, Backend on Render/Railway/Fly.io/Cloud Run).
 
-### Option 1: All-in-One Docker (Render, Railway, Fly.io, Cloud Run)
+### Option 1: All-in-One Vercel Deployment (Full-Stack Monorepo)
+
+You can deploy **both the React frontend and FastAPI backend together directly on Vercel**!
+A root [`vercel.json`](./vercel.json) and [`api/index.py`](./api/index.py) serverless adapter are configured so Vercel:
+1. Builds the Vite React frontend into `frontend/dist` and serves it via Vercel's global CDN.
+2. Automatically routes `/api/*` and `/health` to the serverless FastAPI backend running on Python.
+
+#### How to Deploy on Vercel in 1-Click:
+1. Import your GitHub repository `abhishekpatel10/Pod_Scoper` in [Vercel](https://vercel.com/new).
+2. Leave the **Root Directory** as default (`.` root of the repo).
+3. Under **Environment Variables**, add:
+   - `GOOGLE_API_KEY`: Your Google Gemini API key (or `OPENAI_API_KEY` / `ANTHROPIC_API_KEY`).
+4. Click **Deploy**. Vercel will build the frontend assets and provision the serverless Python API function automatically.
+
+> [!NOTE]
+> **Vercel Hobby Plan Execution Limit**: Vercel Free (Hobby) tier enforces a 10-second timeout on serverless functions. If an LLM call takes longer than 10 seconds, Vercel may return a 504 timeout. If you experience this on the free plan, we recommend Option 2 (Docker on Render/Railway) where execution runs on persistent workers without strict serverless timeouts.
+
+---
+
+### Option 2: All-in-One Docker (Render, Railway, Fly.io, Cloud Run)
 The root [`Dockerfile`](./Dockerfile) uses a multi-stage build:
 1. Stage 1 compiles the React + Vite frontend into `/app/frontend/dist`.
 2. Stage 2 sets up the Python FastAPI runtime, copies the frontend distribution, and mounts static SPA routing directly inside FastAPI.
